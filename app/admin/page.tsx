@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 export default function AdminDashboard() {
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
   const [salesData, setSalesData] = useState({
     currentSales: 0,
     channels: {
@@ -17,7 +17,27 @@ export default function AdminDashboard() {
     recentActivity: []
   });
 
-  const correctPassword = 'SailingVirgins2024'; // We'll move this to env variables later
+  // Countdown Timer Logic
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const endDate = new Date('2024-12-07T23:59:59');
+      const now = new Date();
+      const difference = endDate.getTime() - now.getTime();
+      
+      setTimeLeft({
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60)
+      });
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const correctPassword = 'SailingVirgins2024';
 
   const handleLogin = () => {
     if (password === correctPassword) {
@@ -55,6 +75,17 @@ export default function AdminDashboard() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Dashboard Admin</h1>
         
+        {/* Countdown Timer */}
+        <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+          <h2 className="text-xl font-semibold mb-4">Campaign Timer</h2>
+          <div className="text-2xl font-bold text-blue-600">
+            {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m remaining
+          </div>
+          <div className="text-sm text-gray-500 mt-2">
+            Daily target: {((20 - salesData.currentSales) / (timeLeft.days || 1)).toFixed(1)} sales
+          </div>
+        </div>
+        
         {/* Sales Update */}
         <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
           <h2 className="text-xl font-semibold mb-4">Update Sales</h2>
@@ -64,7 +95,7 @@ export default function AdminDashboard() {
               value={salesData.currentSales}
               onChange={(e) => setSalesData({
                 ...salesData,
-                currentSales: parseInt(e.target.value)
+                currentSales: parseInt(e.target.value) || 0
               })}
               className="p-2 border rounded"
             />
@@ -90,7 +121,7 @@ export default function AdminDashboard() {
                         ...salesData.channels,
                         [channel]: {
                           ...data,
-                          leads: parseInt(e.target.value)
+                          leads: parseInt(e.target.value) || 0
                         }
                       }
                     })}
@@ -108,7 +139,7 @@ export default function AdminDashboard() {
                         ...salesData.channels,
                         [channel]: {
                           ...data,
-                          conversions: parseInt(e.target.value)
+                          conversions: parseInt(e.target.value) || 0
                         }
                       }
                     })}
