@@ -17,11 +17,14 @@ export default function AdminDashboard() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt with password:', password);  // Debug log
+    console.log('Entered password:', password);
+    console.log('Password length:', password.length);
+    console.log('Password comparison:', password === 'sv2024');
+    
     if (password === 'sv2024') {
       setIsAuthenticated(true);
     } else {
-      alert('Incorrect password');
+      alert(`Incorrect password. You entered: ${password}`);
     }
   };
 
