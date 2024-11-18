@@ -12,12 +12,6 @@ export interface ChannelMetrics {
       email: ChannelMetrics;
       ppc: ChannelMetrics;
     };
-    recentActivity: Array<{
-      type: string;
-      source: string;
-      time: string;
-      details?: string;
-    }>;
   }
   
   export const initialData: DashboardData = {
@@ -27,6 +21,5 @@ export interface ChannelMetrics {
       instagram: { leads: 0, conversions: 0 },
       email: { leads: 0, conversions: 0 },
       ppc: { leads: 0, conversions: 0 }
-    },
-    recentActivity: []
+    }
   };
