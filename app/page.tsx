@@ -1,154 +1,151 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DashboardData, initialData } from '@/types/dashboard';
-import { kv } from '@vercel/kv';
-import { Calendar, Target, Users, DollarSign, TrendingUp, Youtube, Instagram, Mail } from 'lucide-react';
+import { Calendar, Target, TrendingUp, Youtube, Instagram, Mail, DollarSign } from 'lucide-react';
 
-export default function CampaignDashboard() {
-  const [data, setData] = useState<DashboardData>(initialData);
-  const [loading, setLoading] = useState(true);
+const initialData = {
+  currentSales: 0,
+  channels: {
+    youtube: { leads: 0, conversions: 0 },
+    instagram: { leads: 0, conversions: 0 },
+    email: { leads: 0, conversions: 0 },
+    ppc: { leads: 0, conversions: 0 }
+  }
+};
 
+export default function Dashboard() {
+  const [data, setData] = useState(initialData);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const dashboardData = await kv.get<DashboardData>('dashboardData') || initialData;
-        setData(dashboardData);
+        const response = await fetch('/api/kv');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setData(data);
       } catch (error) {
         console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
       }
     };
-
+    
     fetchData();
     const interval = setInterval(fetchData, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  const daysLeft = 20 - data.currentSales;
-  const salesTarget = 20;
-  
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      {/* Main Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-blue-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-gray-500 text-sm font-medium">Campaign Days Left</p>
-              <h2 className="text-3xl font-bold text-gray-900">{daysLeft}</h2>
-            </div>
-            <Calendar className="text-blue-500 h-8 w-8" />
-          </div>
+    <div style={{ background: '#f0f2f5', minHeight: '100vh', padding: '2rem' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        {/* Main Stats */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
+          <StatCard 
+            title="Days Left" 
+            value={20 - data.currentSales} 
+            icon={<Calendar size={24} color="#2563eb" />}
+            borderColor="#2563eb"
+          />
+          <StatCard 
+            title="Sales" 
+            value={`${data.currentSales}/20`} 
+            icon={<Target size={24} color="#16a34a" />}
+            borderColor="#16a34a"
+          />
+          <StatCard 
+            title="Daily Target" 
+            value={((20 - data.currentSales) / Math.max(1, 20 - data.currentSales)).toFixed(1)} 
+            icon={<TrendingUp size={24} color="#9333ea" />}
+            borderColor="#9333ea"
+          />
         </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-green-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-gray-500 text-sm font-medium">Sales</p>
-              <h2 className="text-3xl font-bold text-gray-900">{data.currentSales}/{salesTarget}</h2>
-            </div>
-            <Target className="text-green-500 h-8 w-8" />
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-purple-500">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-gray-500 text-sm font-medium">Daily Target</p>
-              <h2 className="text-3xl font-bold text-gray-900">{((salesTarget - data.currentSales) / daysLeft).toFixed(1)}</h2>
-            </div>
-            <TrendingUp className="text-purple-500 h-8 w-8" />
-          </div>
-        </div>
-      </div>
 
-      {/* Channel Performance */}
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h3 className="text-lg font-semibold mb-4">Channel Performance</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">YouTube</p>
-                <p className="text-lg font-semibold">{data.channels.youtube.leads} leads</p>
-              </div>
-              <Youtube className="text-red-500 h-6 w-6" />
-            </div>
-            <p className="text-xs text-gray-500 mt-2">{data.channels.youtube.conversions} conversions</p>
-          </div>
-          
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Instagram</p>
-                <p className="text-lg font-semibold">{data.channels.instagram.leads} leads</p>
-              </div>
-              <Instagram className="text-pink-500 h-6 w-6" />
-            </div>
-            <p className="text-xs text-gray-500 mt-2">{data.channels.instagram.conversions} conversions</p>
-          </div>
-          
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Email</p>
-                <p className="text-lg font-semibold">{data.channels.email.leads} leads</p>
-              </div>
-              <Mail className="text-blue-500 h-6 w-6" />
-            </div>
-            <p className="text-xs text-gray-500 mt-2">{data.channels.email.conversions} conversions</p>
-          </div>
-          
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">PPC</p>
-                <p className="text-lg font-semibold">{data.channels.ppc.leads} leads</p>
-              </div>
-              <DollarSign className="text-green-500 h-6 w-6" />
-            </div>
-            <p className="text-xs text-gray-500 mt-2">{data.channels.ppc.conversions} conversions</p>
+        {/* Channel Stats */}
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '0.5rem', 
+          padding: '1.5rem',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <h2 style={{ 
+            fontSize: '1.25rem', 
+            fontWeight: '600', 
+            marginBottom: '1rem' 
+          }}>
+            Channel Performance
+          </h2>
+          <div style={{ 
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '1rem'
+          }}>
+            <ChannelCard 
+              name="YouTube" 
+              data={data.channels.youtube}
+              icon={<Youtube size={20} color="#ef4444" />}
+            />
+            <ChannelCard 
+              name="Instagram" 
+              data={data.channels.instagram}
+              icon={<Instagram size={20} color="#ec4899" />}
+            />
+            <ChannelCard 
+              name="Email" 
+              data={data.channels.email}
+              icon={<Mail size={20} color="#3b82f6" />}
+            />
+            <ChannelCard 
+              name="PPC" 
+              data={data.channels.ppc}
+              icon={<DollarSign size={20} color="#22c55e" />}
+            />
           </div>
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Recent Activity */}
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-            <div className="flex items-center gap-3">
-              <Users className="text-gray-400 h-5 w-5" />
-              <div>
-                <p className="text-sm font-medium">New Lead</p>
-                <p className="text-xs text-gray-500">via Instagram</p>
-              </div>
-            </div>
-            <span className="text-xs text-gray-500">2m ago</span>
-          </div>
-          
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-            <div className="flex items-center gap-3">
-              <Mail className="text-gray-400 h-5 w-5" />
-              <div>
-                <p className="text-sm font-medium">Email Opened</p>
-                <p className="text-xs text-gray-500">Campaign: Winter Escape</p>
-              </div>
-            </div>
-            <span className="text-xs text-gray-500">5m ago</span>
-          </div>
+function StatCard({ title, value, icon, borderColor }) {
+  return (
+    <div style={{ 
+      background: 'white',
+      borderRadius: '0.5rem',
+      padding: '1.5rem',
+      borderLeft: `4px solid ${borderColor}`,
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '0.5rem' }}>{title}</p>
+          <h3 style={{ fontSize: '1.875rem', fontWeight: '700', color: '#111827' }}>{value}</h3>
         </div>
+        {icon}
       </div>
+    </div>
+  );
+}
+
+function ChannelCard({ name, data, icon }) {
+  return (
+    <div style={{ 
+      background: '#f9fafb',
+      borderRadius: '0.5rem',
+      padding: '1rem'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div>
+          <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>{name}</p>
+          <p style={{ fontSize: '1.125rem', fontWeight: '600' }}>{data.leads} leads</p>
+        </div>
+        {icon}
+      </div>
+      <p style={{ color: '#6b7280', fontSize: '0.75rem' }}>{data.conversions} conversions</p>
     </div>
   );
 }
