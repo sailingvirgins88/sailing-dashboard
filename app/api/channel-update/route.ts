@@ -2,11 +2,14 @@
 // app/api/channel-update/route.ts
 import { kv } from '@vercel/kv';
 import { NextResponse } from 'next/server';
-import { DashboardData, initialData } from '@/types/dashboard';
+import { DashboardData, initialData, ChannelType, MetricType } from '@/types/dashboard';
 
 export async function POST(request: Request) {
   try {
-    const { channel, type } = await request.json();
+    const { channel, type } = await request.json() as {
+      channel: ChannelType;
+      type: MetricType;
+    };
 
     // Get current data
     const data = await kv.get<DashboardData>('dashboardData') || initialData;

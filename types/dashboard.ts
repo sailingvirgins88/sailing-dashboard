@@ -1,4 +1,7 @@
 // types/dashboard.ts
+export type ChannelType = 'youtube' | 'instagram' | 'email' | 'ppc';
+export type MetricType = 'lead' | 'conversion';
+
 export interface ChannelMetrics {
     leads: number;
     conversions: number;
@@ -7,10 +10,7 @@ export interface ChannelMetrics {
   export interface DashboardData {
     currentSales: number;
     channels: {
-      youtube: ChannelMetrics;
-      instagram: ChannelMetrics;
-      email: ChannelMetrics;
-      ppc: ChannelMetrics;
+      [key in ChannelType]: ChannelMetrics;
     };
   }
   
