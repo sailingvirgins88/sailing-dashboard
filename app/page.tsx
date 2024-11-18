@@ -147,7 +147,7 @@ export default function CampaignDashboard() {
 
       {/* Channel Activity */}
       <div className="section-card">
-        <h2 className="section-title">Today's Channel Activity</h2>
+        <h2 className="section-title">Today&apos;s Channel Activity</h2>
         <div className="grid-container channels-grid">
           <div className="metric-card pink">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>

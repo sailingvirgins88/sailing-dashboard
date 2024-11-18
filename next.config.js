@@ -2,7 +2,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     experimental: {
-      appDir: true,
+      // Remove the appDir option as it's no longer needed in Next.js 14
     },
     typescript: {
       ignoreBuildErrors: false,
