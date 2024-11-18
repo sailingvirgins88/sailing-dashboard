@@ -14,7 +14,6 @@ export default function AdminDashboard() {
       ppc: { leads: 0, conversions: 0 }
     }
   });
-  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,13 +34,12 @@ export default function AdminDashboard() {
       });
 
       if (response.ok) {
-        setError(null);
         alert('Dashboard updated successfully!');
       } else {
         throw new Error('Failed to update');
       }
     } catch (error) {
-      setError('Error updating dashboard');
+      console.error('Error updating dashboard:', error);
     }
   };
 
@@ -141,7 +139,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-      {error && <div className="text-red-500">{error}</div>}
     </div>
   );
 }
