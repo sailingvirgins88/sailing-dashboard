@@ -1,9 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DashboardData, initialData } from '@/types/dashboard';
-import { kv } from '@vercel/kv';
-import { Lock, Save, Youtube, Instagram, Mail, DollarSign, RefreshCw, ArrowRight } from 'lucide-react';
+import { Lock, Save, Youtube, Instagram, Mail, DollarSign } from 'lucide-react';
+
+type DashboardData = {
+  currentSales: number;
+  channels: {
+    youtube: { leads: number; conversions: number; };
+    instagram: { leads: number; conversions: number; };
+    email: { leads: number; conversions: number; };
+    ppc: { leads: number; conversions: number; };
+  };
+};
+
+const initialData: DashboardData = {
+  currentSales: 0,
+  channels: {
+    youtube: { leads: 0, conversions: 0 },
+    instagram: { leads: 0, conversions: 0 },
+    email: { leads: 0, conversions: 0 },
+    ppc: { leads: 0, conversions: 0 }
+  }
+};
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -19,8 +37,10 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const data = await kv.get<DashboardData>('dashboardData') || initialData;
-      setDashboardData(data);
+      const response = await fetch('/api/kv');
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+      setDashboardData(data || initialData);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -31,25 +51,15 @@ export default function AdminDashboard() {
     try {
       const response = await fetch('/api/kv', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dashboardData)
       });
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      if (result.success) {
-        alert('Dashboard data saved successfully!');
-      } else {
-        throw new Error(result.error || 'Unknown error');
-      }
+      if (!response.ok) throw new Error('Failed to save');
+      alert('Changes saved successfully!');
     } catch (error) {
-      console.error('Save error:', error);
-      alert('Error saving data. Please try again.');
+      console.error('Error saving:', error);
+      alert('Error saving changes. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -67,32 +77,29 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200">
             <div className="flex justify-center mb-6">
-              <div className="bg-blue-50 rounded-xl p-3">
+              <div className="bg-blue-50 rounded-full p-3">
                 <Lock className="h-6 w-6 text-blue-500" />
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">Admin Access</h2>
-            <p className="text-center text-gray-500 mb-8">Enter your password to continue</p>
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-              <button 
+            <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">Dashboard Controls</h2>
+            <p className="text-center text-gray-500 mb-6">Enter password to continue</p>
+            <form onSubmit={handleLogin}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+                placeholder="Enter password"
+              />
+              <button
                 type="submit"
-                className="w-full bg-blue-500 text-white py-3 px-4 rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all flex items-center justify-center gap-2"
+                className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 Continue
-                <ArrowRight className="h-4 w-4" />
               </button>
             </form>
           </div>
@@ -102,65 +109,51 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-12">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard Controls</h1>
-            <p className="text-gray-500">Update campaign metrics and performance data</p>
-          </div>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard Controls</h1>
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className={`
+              flex items-center gap-2 px-4 py-2 rounded-lg text-white
+              ${isSaving ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+            `}
           >
-            {isSaving ? (
-              <>
-                <RefreshCw className="h-5 w-5 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-5 w-5" />
-                Save Changes
-              </>
-            )}
+            <Save className="h-4 w-4" />
+            {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
 
-        {/* Sales Progress */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Current Sales</h2>
-          <div className="flex items-center gap-4">
-            <input
-              type="number"
-              min="0"
-              max="20"
-              value={dashboardData.currentSales}
-              onChange={(e) => setDashboardData({
-                ...dashboardData,
-                currentSales: parseInt(e.target.value) || 0
-              })}
-              className="w-32 px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
-            <span className="text-gray-500">out of 20 total sales target</span>
-          </div>
+        {/* Current Sales */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8 border border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Current Sales</h2>
+          <input
+            type="number"
+            min="0"
+            max="20"
+            value={dashboardData.currentSales}
+            onChange={(e) => setDashboardData({
+              ...dashboardData,
+              currentSales: parseInt(e.target.value) || 0
+            })}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
         </div>
 
         {/* Channel Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* YouTube */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="bg-red-50 rounded-lg p-2">
-                <Youtube className="h-5 w-5 text-red-500" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">YouTube</h2>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center gap-3 mb-6">
+              <Youtube className="h-6 w-6 text-red-500" />
+              <h2 className="text-lg font-semibold text-gray-900">YouTube</h2>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Leads</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Leads</label>
                 <input
                   type="number"
                   min="0"
@@ -175,11 +168,11 @@ export default function AdminDashboard() {
                       }
                     }
                   })}
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Conversions</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Conversions</label>
                 <input
                   type="number"
                   min="0"
@@ -194,23 +187,21 @@ export default function AdminDashboard() {
                       }
                     }
                   })}
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
           </div>
 
           {/* Instagram */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="bg-pink-50 rounded-lg p-2">
-                <Instagram className="h-5 w-5 text-pink-500" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Instagram</h2>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center gap-3 mb-6">
+              <Instagram className="h-6 w-6 text-pink-500" />
+              <h2 className="text-lg font-semibold text-gray-900">Instagram</h2>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Leads</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Leads</label>
                 <input
                   type="number"
                   min="0"
@@ -225,11 +216,11 @@ export default function AdminDashboard() {
                       }
                     }
                   })}
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Conversions</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Conversions</label>
                 <input
                   type="number"
                   min="0"
@@ -244,23 +235,21 @@ export default function AdminDashboard() {
                       }
                     }
                   })}
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
           </div>
 
           {/* Email */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="bg-blue-50 rounded-lg p-2">
-                <Mail className="h-5 w-5 text-blue-500" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">Email</h2>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center gap-3 mb-6">
+              <Mail className="h-6 w-6 text-blue-500" />
+              <h2 className="text-lg font-semibold text-gray-900">Email</h2>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Leads</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Leads</label>
                 <input
                   type="number"
                   min="0"
@@ -275,11 +264,11 @@ export default function AdminDashboard() {
                       }
                     }
                   })}
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Conversions</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Conversions</label>
                 <input
                   type="number"
                   min="0"
@@ -294,23 +283,21 @@ export default function AdminDashboard() {
                       }
                     }
                   })}
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
           </div>
 
           {/* PPC */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="bg-green-50 rounded-lg p-2">
-                <DollarSign className="h-5 w-5 text-green-500" />
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">PPC</h2>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center gap-3 mb-6">
+              <DollarSign className="h-6 w-6 text-green-500" />
+              <h2 className="text-lg font-semibold text-gray-900">PPC</h2>
             </div>
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Leads</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Leads</label>
                 <input
                   type="number"
                   min="0"
@@ -325,11 +312,11 @@ export default function AdminDashboard() {
                       }
                     }
                   })}
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">Conversions</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Conversions</label>
                 <input
                   type="number"
                   min="0"
@@ -344,7 +331,7 @@ export default function AdminDashboard() {
                       }
                     }
                   })}
-                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
