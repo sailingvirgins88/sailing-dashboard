@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { DashboardData, initialData } from '@/types/dashboard';
 import { kv } from '@vercel/kv';
-import { Calendar, Target, TrendingUp, Youtube, Instagram, Mail, DollarSign } from 'lucide-react';
+import { Calendar, Target, Users, DollarSign, TrendingUp, Youtube, Instagram, Mail } from 'lucide-react';
 
-export default function Dashboard() {
+export default function CampaignDashboard() {
   const [data, setData] = useState<DashboardData>(initialData);
   const [loading, setLoading] = useState(true);
 
@@ -28,139 +28,125 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   const daysLeft = 20 - data.currentSales;
-  const dailyTarget = daysLeft > 0 ? ((20 - data.currentSales) / daysLeft).toFixed(1) : '0';
-
+  const salesTarget = 20;
+  
   return (
-    <main className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-2xl font-semibold text-gray-900">Campaign Dashboard</h1>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <Calendar className="h-6 w-6 text-blue-600" />
-              </div>
-              <span className="text-sm font-medium text-gray-500">Days Remaining</span>
+    <div className="p-6 max-w-6xl mx-auto space-y-6">
+      {/* Main Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-blue-500">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-gray-500 text-sm font-medium">Campaign Days Left</p>
+              <h2 className="text-3xl font-bold text-gray-900">{daysLeft}</h2>
             </div>
-            <div className="flex items-baseline space-x-2">
-              <h3 className="text-3xl font-bold text-gray-900">{daysLeft}</h3>
-              <span className="text-gray-600">days</span>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-green-50 p-3 rounded-lg">
-                <Target className="h-6 w-6 text-green-600" />
-              </div>
-              <span className="text-sm font-medium text-gray-500">Sales Progress</span>
-            </div>
-            <div className="flex items-baseline space-x-2">
-              <h3 className="text-3xl font-bold text-gray-900">{data.currentSales}</h3>
-              <span className="text-gray-600">/ 20 sales</span>
-            </div>
-            <div className="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-green-500 rounded-full transition-all duration-500"
-                style={{ width: `${(data.currentSales / 20) * 100}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-purple-50 p-3 rounded-lg">
-                <TrendingUp className="h-6 w-6 text-purple-600" />
-              </div>
-              <span className="text-sm font-medium text-gray-500">Daily Target</span>
-            </div>
-            <div className="flex items-baseline space-x-2">
-              <h3 className="text-3xl font-bold text-gray-900">{dailyTarget}</h3>
-              <span className="text-gray-600">sales/day</span>
-            </div>
+            <Calendar className="text-blue-500 h-8 w-8" />
           </div>
         </div>
-
-        {/* Channel Performance */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Channel Performance</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <ChannelCard
-              icon={<Youtube className="h-5 w-5 text-red-500" />}
-              name="YouTube"
-              data={data.channels.youtube}
-            />
-            <ChannelCard
-              icon={<Instagram className="h-5 w-5 text-pink-500" />}
-              name="Instagram"
-              data={data.channels.instagram}
-            />
-            <ChannelCard
-              icon={<Mail className="h-5 w-5 text-blue-500" />}
-              name="Email"
-              data={data.channels.email}
-            />
-            <ChannelCard
-              icon={<DollarSign className="h-5 w-5 text-green-500" />}
-              name="PPC"
-              data={data.channels.ppc}
-            />
+        
+        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-green-500">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-gray-500 text-sm font-medium">Sales</p>
+              <h2 className="text-3xl font-bold text-gray-900">{data.currentSales}/{salesTarget}</h2>
+            </div>
+            <Target className="text-green-500 h-8 w-8" />
           </div>
         </div>
-
-        {/* Conversion Rates */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Conversion Rates</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {Object.entries(data.channels).map(([channel, metrics]) => {
-              const rate = metrics.leads ? ((metrics.conversions / metrics.leads) * 100).toFixed(1) : '0';
-              return (
-                <div key={channel} className="text-center p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm font-medium text-gray-500 mb-1 capitalize">{channel}</p>
-                  <p className="text-2xl font-bold text-gray-900">{rate}%</p>
-                </div>
-              );
-            })}
+        
+        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-purple-500">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-gray-500 text-sm font-medium">Daily Target</p>
+              <h2 className="text-3xl font-bold text-gray-900">{((salesTarget - data.currentSales) / daysLeft).toFixed(1)}</h2>
+            </div>
+            <TrendingUp className="text-purple-500 h-8 w-8" />
           </div>
         </div>
       </div>
-    </main>
-  );
-}
 
-function ChannelCard({ icon, name, data }: { 
-  icon: React.ReactNode; 
-  name: string; 
-  data: { leads: number; conversions: number; }; 
-}) {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center space-x-3">
-        {icon}
-        <h3 className="font-medium text-gray-900">{name}</h3>
-      </div>
-      <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">Leads</span>
-          <span className="font-medium text-gray-900">{data.leads}</span>
+      {/* Channel Performance */}
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h3 className="text-lg font-semibold mb-4">Channel Performance</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">YouTube</p>
+                <p className="text-lg font-semibold">{data.channels.youtube.leads} leads</p>
+              </div>
+              <Youtube className="text-red-500 h-6 w-6" />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">{data.channels.youtube.conversions} conversions</p>
+          </div>
+          
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Instagram</p>
+                <p className="text-lg font-semibold">{data.channels.instagram.leads} leads</p>
+              </div>
+              <Instagram className="text-pink-500 h-6 w-6" />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">{data.channels.instagram.conversions} conversions</p>
+          </div>
+          
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Email</p>
+                <p className="text-lg font-semibold">{data.channels.email.leads} leads</p>
+              </div>
+              <Mail className="text-blue-500 h-6 w-6" />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">{data.channels.email.conversions} conversions</p>
+          </div>
+          
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">PPC</p>
+                <p className="text-lg font-semibold">{data.channels.ppc.leads} leads</p>
+              </div>
+              <DollarSign className="text-green-500 h-6 w-6" />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">{data.channels.ppc.conversions} conversions</p>
+          </div>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">Conversions</span>
-          <span className="font-medium text-gray-900">{data.conversions}</span>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+            <div className="flex items-center gap-3">
+              <Users className="text-gray-400 h-5 w-5" />
+              <div>
+                <p className="text-sm font-medium">New Lead</p>
+                <p className="text-xs text-gray-500">via Instagram</p>
+              </div>
+            </div>
+            <span className="text-xs text-gray-500">2m ago</span>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+            <div className="flex items-center gap-3">
+              <Mail className="text-gray-400 h-5 w-5" />
+              <div>
+                <p className="text-sm font-medium">Email Opened</p>
+                <p className="text-xs text-gray-500">Campaign: Winter Escape</p>
+              </div>
+            </div>
+            <span className="text-xs text-gray-500">5m ago</span>
+          </div>
         </div>
       </div>
     </div>
