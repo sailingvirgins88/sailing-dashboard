@@ -2,26 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Calendar, Target, Users, DollarSign, TrendingUp, Youtube, Instagram, Mail } from 'lucide-react';
-
-type DashboardData = {
-  currentSales: number;
-  channels: {
-    youtube: { leads: number; conversions: number; };
-    instagram: { leads: number; conversions: number; };
-    email: { leads: number; conversions: number; };
-    ppc: { leads: number; conversions: number; };
-  };
-};
-
-const initialData: DashboardData = {
-  currentSales: 0,
-  channels: {
-    youtube: { leads: 0, conversions: 0 },
-    instagram: { leads: 0, conversions: 0 },
-    email: { leads: 0, conversions: 0 },
-    ppc: { leads: 0, conversions: 0 }
-  }
-};
+import { DashboardData, initialData } from '@/types/dashboard';
 
 export default function CampaignDashboard() {
   const [data, setData] = useState<DashboardData>(initialData);
