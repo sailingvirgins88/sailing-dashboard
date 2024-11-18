@@ -5,24 +5,25 @@ import { useState } from 'react';
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (password === 'sv2024') {
-        console.log('Password correct!');
-        setIsAuthenticated(true);
-      } else {
-        console.log('Password incorrect:', password);
-        alert('Incorrect password - please try again');
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      alert('Error during login. Please try again.');
+    setIsLoading(true);
+    
+    console.log('Attempting login...');
+    
+    if (password === 'sv2024') {
+      console.log('Password correct!');
+      setIsAuthenticated(true);
+    } else {
+      console.log('Incorrect password');
+      alert('Incorrect password');
     }
+    
+    setIsLoading(false);
   };
 
-  // Simple loading state display
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -35,12 +36,14 @@ export default function AdminDashboard() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
               className="w-full p-3 border border-gray-300 rounded-lg text-gray-800"
+              disabled={isLoading}
             />
             <button 
               type="submit"
-              className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300"
+              disabled={isLoading}
             >
-              Login
+              {isLoading ? 'Logging in...' : 'Login'}
             </button>
           </form>
         </div>
@@ -48,5 +51,5 @@ export default function AdminDashboard() {
     );
   }
 
-  // ... rest of your component code ...
+  // ... rest of your admin dashboard code ...
 }
