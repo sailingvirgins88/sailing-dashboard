@@ -1,0 +1,177 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    padding: 1rem;
+  }
+  
+  .login-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #3b82f6;
+    width: 100%;
+    max-width: 24rem;
+  }
+  
+  .login-icon {
+    width: 3rem;
+    height: 3rem;
+    color: #3b82f6;
+    margin: 0 auto 1.5rem;
+  }
+  
+  .login-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .login-subtitle {
+    color: #6b7280;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .login-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
+  
+  .login-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  .login-button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .login-button:hover {
+    background: #2563eb;
+  }
+  
+  .admin-container {
+    padding: 1.5rem;
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+  
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .save-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .save-button:hover {
+    background: #2563eb;
+  }
+  
+  .save-button:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+  }
+  
+  .admin-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+  
+  .admin-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  
+  .channels-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  
+  .input-group {
+    margin-bottom: 1rem;
+  }
+  
+  .input-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+  
+  .admin-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .admin-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  .channel-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid;
+  }
+  
+  .channel-card.instagram { border-color: #ec4899; }
+  .channel-card.youtube { border-color: #ef4444; }
+  .channel-card.email { border-color: #3b82f6; }
+  
+  .channel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .channel-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .channel-icon.instagram { color: #ec4899; }
+  .channel-icon.youtube { color: #ef4444; }
+  .channel-icon.email { color: #3b82f6; }

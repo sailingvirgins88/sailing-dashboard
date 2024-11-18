@@ -1,8 +1,49 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Lock, Save, Youtube, Instagram, Mail, DollarSign } from 'lucide-react';
-import { DashboardData, initialData } from '@/types/dashboard';
+import { Lock, Save, Youtube, Instagram, Mail, Users } from 'lucide-react';
+import './styles.css';
+
+type DashboardData = {
+  currentSales: number;
+  channels: {
+    instagram: {
+      stories: number;
+      posts: number;
+      reels: number;
+      comments: number;
+    };
+    youtube: {
+      episodes: number;
+      comments: number;
+    };
+    email: {
+      contacted: number;
+      responses: number;
+    };
+  };
+  pipeline: {
+    leads: number;
+    conversations: number;
+    proposals: number;
+    closed: number;
+  };
+};
+
+const initialData: DashboardData = {
+  currentSales: 0,
+  channels: {
+    instagram: { stories: 0, posts: 0, reels: 0, comments: 0 },
+    youtube: { episodes: 0, comments: 0 },
+    email: { contacted: 0, responses: 0 }
+  },
+  pipeline: {
+    leads: 0,
+    conversations: 0,
+    proposals: 0,
+    closed: 0
+  }
+};
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -58,257 +99,310 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="max-w-md w-full">
-          <div className="bg-white p-8 rounded-lg shadow-lg border-l-4 border-blue-500">
-            <div className="flex justify-center mb-6">
-              <Lock className="h-12 w-12 text-blue-500" />
-            </div>
-            <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">Dashboard Controls</h2>
-            <p className="text-center text-gray-500 mb-6">Enter password to continue</p>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter password"
-              />
-              <button
-                type="submit"
-                className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Continue
-              </button>
-            </form>
-          </div>
+      <div className="login-container">
+        <div className="login-card">
+          <Lock className="login-icon" />
+          <h2 className="login-title">Dashboard Controls</h2>
+          <p className="login-subtitle">Enter password to continue</p>
+          <form onSubmit={handleLogin}>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="login-input"
+              placeholder="Enter password"
+            />
+            <button type="submit" className="login-button">
+              Continue
+            </button>
+          </form>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard Controls</h1>
+    <div className="admin-container">
+      <div className="admin-header">
+        <h1 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#111827' }}>Dashboard Controls</h1>
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center gap-2 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400"
+          className="save-button"
         >
-          <Save className="h-5 w-5" />
+          <Save className="channel-icon" />
           {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
 
-      {/* Current Sales */}
-      <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-green-500">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Current Sales</h2>
-        <input
-          type="number"
-          min="0"
-          max="20"
-          value={dashboardData.currentSales}
-          onChange={(e) => setDashboardData({
-            ...dashboardData,
-            currentSales: parseInt(e.target.value) || 0
-          })}
-          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-        />
+      {/* Sales Progress */}
+      <div className="admin-section">
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Sales Progress</h2>
+        <div className="input-group">
+          <label className="input-label">Current Sales (out of 20)</label>
+          <input
+            type="number"
+            min="0"
+            max="20"
+            value={dashboardData.currentSales}
+            onChange={(e) => setDashboardData({
+              ...dashboardData,
+              currentSales: parseInt(e.target.value) || 0
+            })}
+            className="admin-input"
+          />
+        </div>
       </div>
 
-      {/* Channel Controls */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* YouTube */}
-        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-red-500">
-          <div className="flex items-center gap-3 mb-6">
-            <Youtube className="h-6 w-6 text-red-500" />
-            <h2 className="text-lg font-semibold text-gray-900">YouTube</h2>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Leads</label>
-              <input
-                type="number"
-                min="0"
-                value={dashboardData.channels.youtube.leads}
-                onChange={(e) => setDashboardData({
-                  ...dashboardData,
-                  channels: {
-                    ...dashboardData.channels,
-                    youtube: {
-                      ...dashboardData.channels.youtube,
-                      leads: parseInt(e.target.value) || 0
-                    }
-                  }
-                })}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              />
+      {/* Channel Metrics */}
+      <div className="admin-section">
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Channel Activity</h2>
+        <div className="admin-grid channels-grid">
+          {/* Instagram */}
+          <div className="channel-card instagram">
+            <div className="channel-header">
+              <Instagram className="channel-icon instagram" />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600' }}>Instagram</h3>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Conversions</label>
+            <div className="input-group">
+              <label className="input-label">Stories Posted</label>
               <input
                 type="number"
                 min="0"
-                value={dashboardData.channels.youtube.conversions}
-                onChange={(e) => setDashboardData({
-                  ...dashboardData,
-                  channels: {
-                    ...dashboardData.channels,
-                    youtube: {
-                      ...dashboardData.channels.youtube,
-                      conversions: parseInt(e.target.value) || 0
-                    }
-                  }
-                })}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Instagram */}
-        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-pink-500">
-          <div className="flex items-center gap-3 mb-6">
-            <Instagram className="h-6 w-6 text-pink-500" />
-            <h2 className="text-lg font-semibold text-gray-900">Instagram</h2>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Leads</label>
-              <input
-                type="number"
-                min="0"
-                value={dashboardData.channels.instagram.leads}
+                value={dashboardData.channels.instagram.stories}
                 onChange={(e) => setDashboardData({
                   ...dashboardData,
                   channels: {
                     ...dashboardData.channels,
                     instagram: {
                       ...dashboardData.channels.instagram,
-                      leads: parseInt(e.target.value) || 0
+                      stories: parseInt(e.target.value) || 0
                     }
                   }
                 })}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="admin-input"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Conversions</label>
+            <div className="input-group">
+              <label className="input-label">Posts Created</label>
               <input
                 type="number"
                 min="0"
-                value={dashboardData.channels.instagram.conversions}
+                value={dashboardData.channels.instagram.posts}
                 onChange={(e) => setDashboardData({
                   ...dashboardData,
                   channels: {
                     ...dashboardData.channels,
                     instagram: {
                       ...dashboardData.channels.instagram,
-                      conversions: parseInt(e.target.value) || 0
+                      posts: parseInt(e.target.value) || 0
                     }
                   }
                 })}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                className="admin-input"
               />
             </div>
-          </div>
-        </div>
-
-        {/* Email */}
-        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-blue-500">
-          <div className="flex items-center gap-3 mb-6">
-            <Mail className="h-6 w-6 text-blue-500" />
-            <h2 className="text-lg font-semibold text-gray-900">Email</h2>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Leads</label>
+            <div className="input-group">
+              <label className="input-label">Reels Published</label>
               <input
                 type="number"
                 min="0"
-                value={dashboardData.channels.email.leads}
+                value={dashboardData.channels.instagram.reels}
+                onChange={(e) => setDashboardData({
+                  ...dashboardData,
+                  channels: {
+                    ...dashboardData.channels,
+                    instagram: {
+                      ...dashboardData.channels.instagram,
+                      reels: parseInt(e.target.value) || 0
+                    }
+                  }
+                })}
+                className="admin-input"
+              />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Comments Replied</label>
+              <input
+                type="number"
+                min="0"
+                value={dashboardData.channels.instagram.comments}
+                onChange={(e) => setDashboardData({
+                  ...dashboardData,
+                  channels: {
+                    ...dashboardData.channels,
+                    instagram: {
+                      ...dashboardData.channels.instagram,
+                      comments: parseInt(e.target.value) || 0
+                    }
+                  }
+                })}
+                className="admin-input"
+              />
+            </div>
+          </div>
+
+          {/* YouTube */}
+          <div className="channel-card youtube">
+            <div className="channel-header">
+              <Youtube className="channel-icon youtube" />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600' }}>YouTube</h3>
+            </div>
+            <div className="input-group">
+              <label className="input-label">Episodes Published</label>
+              <input
+                type="number"
+                min="0"
+                value={dashboardData.channels.youtube.episodes}
+                onChange={(e) => setDashboardData({
+                  ...dashboardData,
+                  channels: {
+                    ...dashboardData.channels,
+                    youtube: {
+                      ...dashboardData.channels.youtube,
+                      episodes: parseInt(e.target.value) || 0
+                    }
+                  }
+                })}
+                className="admin-input"
+              />
+            </div>
+            <div className="input-group">
+              <label className="input-label">Comments Replied</label>
+              <input
+                type="number"
+                min="0"
+                value={dashboardData.channels.youtube.comments}
+                onChange={(e) => setDashboardData({
+                  ...dashboardData,
+                  channels: {
+                    ...dashboardData.channels,
+                    youtube: {
+                      ...dashboardData.channels.youtube,
+                      comments: parseInt(e.target.value) || 0
+                    }
+                  }
+                })}
+                className="admin-input"
+              />
+            </div>
+          </div>
+
+          {/* Email */}
+          <div className="channel-card email">
+            <div className="channel-header">
+              <Mail className="channel-icon email" />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '600' }}>Email</h3>
+            </div>
+            <div className="input-group">
+              <label className="input-label">People Contacted</label>
+              <input
+                type="number"
+                min="0"
+                value={dashboardData.channels.email.contacted}
                 onChange={(e) => setDashboardData({
                   ...dashboardData,
                   channels: {
                     ...dashboardData.channels,
                     email: {
                       ...dashboardData.channels.email,
-                      leads: parseInt(e.target.value) || 0
+                      contacted: parseInt(e.target.value) || 0
                     }
                   }
                 })}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="admin-input"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Conversions</label>
+            <div className="input-group">
+              <label className="input-label">Responses Received</label>
               <input
                 type="number"
                 min="0"
-                value={dashboardData.channels.email.conversions}
+                value={dashboardData.channels.email.responses}
                 onChange={(e) => setDashboardData({
                   ...dashboardData,
                   channels: {
                     ...dashboardData.channels,
                     email: {
                       ...dashboardData.channels.email,
-                      conversions: parseInt(e.target.value) || 0
+                      responses: parseInt(e.target.value) || 0
                     }
                   }
                 })}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="admin-input"
               />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* PPC */}
-        <div className="bg-white p-6 rounded-lg shadow-lg border-l-4 border-green-500">
-          <div className="flex items-center gap-3 mb-6">
-            <DollarSign className="h-6 w-6 text-green-500" />
-            <h2 className="text-lg font-semibold text-gray-900">PPC</h2>
+      {/* Sales Pipeline */}
+      <div className="admin-section">
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Sales Pipeline</h2>
+        <div className="admin-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+          <div className="input-group">
+            <label className="input-label">New Leads</label>
+            <input
+              type="number"
+              min="0"
+              value={dashboardData.pipeline.leads}
+              onChange={(e) => setDashboardData({
+                ...dashboardData,
+                pipeline: {
+                  ...dashboardData.pipeline,
+                  leads: parseInt(e.target.value) || 0
+                }
+              })}
+              className="admin-input"
+            />
           </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Leads</label>
-              <input
-                type="number"
-                min="0"
-                value={dashboardData.channels.ppc.leads}
-                onChange={(e) => setDashboardData({
-                  ...dashboardData,
-                  channels: {
-                    ...dashboardData.channels,
-                    ppc: {
-                      ...dashboardData.channels.ppc,
-                      leads: parseInt(e.target.value) || 0
-                    }
-                  }
-                })}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">Conversions</label>
-              <input
-                type="number"
-                min="0"
-                value={dashboardData.channels.ppc.conversions}
-                onChange={(e) => setDashboardData({
-                  ...dashboardData,
-                  channels: {
-                    ...dashboardData.channels,
-                    ppc: {
-                      ...dashboardData.channels.ppc,
-                      conversions: parseInt(e.target.value) || 0
-                    }
-                  }
-                })}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
+          <div className="input-group">
+            <label className="input-label">Active Conversations</label>
+            <input
+              type="number"
+              min="0"
+              value={dashboardData.pipeline.conversations}
+              onChange={(e) => setDashboardData({
+                ...dashboardData,
+                pipeline: {
+                  ...dashboardData.pipeline,
+                  conversations: parseInt(e.target.value) || 0
+                }
+              })}
+              className="admin-input"
+            />
+          </div>
+          <div className="input-group">
+            <label className="input-label">Proposals Sent</label>
+            <input
+              type="number"
+              min="0"
+              value={dashboardData.pipeline.proposals}
+              onChange={(e) => setDashboardData({
+                ...dashboardData,
+                pipeline: {
+                  ...dashboardData.pipeline,
+                  proposals: parseInt(e.target.value) || 0
+                }
+              })}
+              className="admin-input"
+            />
+          </div>
+          <div className="input-group">
+            <label className="input-label">Sales Closed</label>
+            <input
+              type="number"
+              min="0"
+              value={dashboardData.pipeline.closed}
+              onChange={(e) => setDashboardData({
+                ...dashboardData,
+                pipeline: {
+                  ...dashboardData.pipeline,
+                  closed: parseInt(e.target.value) || 0
+                }
+              })}
+              className="admin-input"
+            />
           </div>
         </div>
       </div>
