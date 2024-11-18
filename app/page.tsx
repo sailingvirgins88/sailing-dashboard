@@ -28,6 +28,7 @@ type DashboardData = {
     proposals: number;
     closed: number;
   };
+  campaignStartDate: string;
 };
 
 const initialData: DashboardData = {
@@ -42,7 +43,8 @@ const initialData: DashboardData = {
     conversations: 0,
     proposals: 0,
     closed: 0
-  }
+  },
+  campaignStartDate: new Date().toISOString()
 };
 
 export default function CampaignDashboard() {
@@ -78,7 +80,8 @@ export default function CampaignDashboard() {
             conversations: dashboardData?.pipeline?.conversations ?? 0,
             proposals: dashboardData?.pipeline?.proposals ?? 0,
             closed: dashboardData?.pipeline?.closed ?? 0
-          }
+          },
+          campaignStartDate: dashboardData?.campaignStartDate ?? new Date().toISOString()
         });
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -101,7 +104,16 @@ export default function CampaignDashboard() {
     );
   }
 
-  const daysLeft = 20;
+  const calculateDaysLeft = () => {
+    const startDate = new Date(data.campaignStartDate);
+    const today = new Date();
+    const campaignLength = 20; // 20 days total
+    const daysPassed = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysLeft = Math.max(0, campaignLength - daysPassed);
+    return daysLeft;
+  };
+
+  const daysLeft = calculateDaysLeft();
   const salesTarget = 20;
   const dailyTarget = ((salesTarget - data.currentSales) / daysLeft).toFixed(1);
   const progressPercentage = (data.currentSales / salesTarget) * 100;

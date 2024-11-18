@@ -28,6 +28,7 @@ type DashboardData = {
     proposals: number;
     closed: number;
   };
+  campaignStartDate: string;
 };
 
 const initialData: DashboardData = {
@@ -42,7 +43,8 @@ const initialData: DashboardData = {
     conversations: 0,
     proposals: 0,
     closed: 0
-  }
+  },
+  campaignStartDate: new Date().toISOString()
 };
 
 export default function AdminDashboard() {
@@ -86,7 +88,8 @@ export default function AdminDashboard() {
           conversations: data?.pipeline?.conversations ?? 0,
           proposals: data?.pipeline?.proposals ?? 0,
           closed: data?.pipeline?.closed ?? 0
-        }
+        },
+        campaignStartDate: data?.campaignStartDate ?? new Date().toISOString()
       });
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -164,6 +167,18 @@ export default function AdminDashboard() {
       {/* Sales Progress */}
       <div className="admin-section">
         <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Sales Progress</h2>
+        <div className="input-group">
+          <label className="input-label">Campaign Start Date</label>
+          <input
+            type="date"
+            value={dashboardData.campaignStartDate.split('T')[0]}
+            onChange={(e) => setDashboardData({
+              ...dashboardData,
+              campaignStartDate: new Date(e.target.value).toISOString()
+            })}
+            className="admin-input"
+          />
+        </div>
         <div className="input-group">
           <label className="input-label">Current Sales (out of 20)</label>
           <input
