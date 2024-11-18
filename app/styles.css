@@ -1,0 +1,36 @@
+.metric-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-left: 4px solid;
+  }
+  
+  .metric-card.blue {
+    border-color: #3b82f6;
+  }
+  
+  .metric-card.green {
+    border-color: #10b981;
+  }
+  
+  .metric-card.purple {
+    border-color: #8b5cf6;
+  }
+  
+  .metric-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .metric-icon.blue {
+    color: #3b82f6;
+  }
+  
+  .metric-icon.green {
+    color: #10b981;
+  }
+  
+  .metric-icon.purple {
+    color: #8b5cf6;
+  }
