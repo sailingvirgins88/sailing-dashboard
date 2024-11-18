@@ -62,9 +62,35 @@ export default function AdminDashboard() {
       const response = await fetch('/api/kv');
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
-      setDashboardData(data || initialData);
+      // Ensure we have all required properties
+      setDashboardData({
+        currentSales: data?.currentSales ?? 0,
+        channels: {
+          instagram: {
+            stories: data?.channels?.instagram?.stories ?? 0,
+            posts: data?.channels?.instagram?.posts ?? 0,
+            reels: data?.channels?.instagram?.reels ?? 0,
+            comments: data?.channels?.instagram?.comments ?? 0
+          },
+          youtube: {
+            episodes: data?.channels?.youtube?.episodes ?? 0,
+            comments: data?.channels?.youtube?.comments ?? 0
+          },
+          email: {
+            contacted: data?.channels?.email?.contacted ?? 0,
+            responses: data?.channels?.email?.responses ?? 0
+          }
+        },
+        pipeline: {
+          leads: data?.pipeline?.leads ?? 0,
+          conversations: data?.pipeline?.conversations ?? 0,
+          proposals: data?.pipeline?.proposals ?? 0,
+          closed: data?.pipeline?.closed ?? 0
+        }
+      });
     } catch (error) {
       console.error('Error fetching data:', error);
+      setDashboardData(initialData);
     }
   };
 
