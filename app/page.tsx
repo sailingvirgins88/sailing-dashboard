@@ -1,3 +1,4 @@
+// Dashboard page updated 2024
 'use client';
 
 import { useState, useEffect } from 'react';
